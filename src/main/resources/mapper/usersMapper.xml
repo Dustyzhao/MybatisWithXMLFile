@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+mapper 用于定义一个映射配置文件的根节点
+namespace属性是用来配置命名空间，主要进行session级别的缓存管理
+命名空间默认情况下，使用我们当前操作的实体类的全路径
+-->
+<mapper namespace="com.damu.entity.Users">
+
+    <!--<select id="findUsers" resultType="com.damu.entity.Users">-->
+    <!--resultMap的值指定了对应的自定义的resultMap-->
+    <select id="findUsers" resultMap="forUsers">
+        select * from users
+        --这里的#{id}是从传入的user对象封装的数据中获取的，不是我们直接输入的id值。
+        --所以我们在Users实体类中添加带id参数的构造方法，当然就必须还要有空参构造方法。
+        <if test="id != null">
+            where id = #{id}
+        </if>
+    </select>
+
+    <!-- 自定义映射关系集合：主要包含对于一些自定义操作的配置，如不一致的属性和字段 -->
+    <!--id属性是给目标sql语句对应的标识，-->
+    <!--这种处理方式是基于我们对mybatis比较熟悉的基础之上，否则我们就要引入log4j来对其执行过程进行简单追踪，添加log4j依赖-->
+    <resultMap id="forUsers" type="com.damu.entity.Users">
+        <!-- 绑定id主键 -->
+        <id property="id" column="id"></id>
+        <!-- result配置，主要配置普通属性，column表示配置的是数据库字段名称 property配置的是实体类的属性名称 -->
+        <result column="username" property="name"></result>
+        <!--proprety指的是实体类中的字段，ofType来制定collection存放的数据类型，select用来调用相关sql语句-->
+        <collection property="addresses" column="id" ofType="com.damu.entity.Address" select="getAddress"></collection>
+    </resultMap>
+
+    <!--查询统一用户所有的地址列表-->
+    <select id="getAddress" resultType="com.damu.entity.Address">
+        select * from address where userid = #{id}
+    </select>
+
+
+    <!--sql片段-->
+    <sql id="user_fields">
+        username, userpass, nickname, age, gender, email, phone, createTime, updateTime, lastLogin, userstatus, remark
+    </sql>
+
+    <!--后两者配置指定自动生成的主键就会赋值到id字段中-->
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id">
+        insert into users( <include refid="user_fields"></include>)
+        values(#{name},#{userpass}, #{nickname}, #{age}, #{gender}, #{email}, #{phone}, #{createTime}, #{updateTime}, #{lastLogin}, #{userStatus}, #{remark})
+    </insert>
+
+    <update id="updateUser">
+        update users
+        --mybatis官方文档内容：set、if标签在进行update操作时避免影响到其他无关的内容
+        <set>
+            <if test="name != null">username = #{name},</if>
+            <if test="userpass != null">userpass = #{userpass},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="age != null">age = #{age},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="createTime != null">createTime = #{createTime},</if>
+            <if test="updateTime != null">updateTime = #{updateTime},</if>
+            <if test="lastLogin != null">lastlogin = #{lastLogin},</if>
+            <if test="userStatus != null">userStatus = #{userStatus},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </set>
+          where id = #{id}
+    </update>
+
+    <delete id="delUser">
+        delete from users where id = #{id}
+    </delete>
+</mapper>
