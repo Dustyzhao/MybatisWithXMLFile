@@ -9,8 +9,6 @@
     -->
     <properties resource="db.properties"></properties>
 
-
-
     <!--
     environments 主要用于进行数据源的配置
     可以配置多个数据源~ 通过default属性来指定当前项目运行过程中使用的是哪个数据源

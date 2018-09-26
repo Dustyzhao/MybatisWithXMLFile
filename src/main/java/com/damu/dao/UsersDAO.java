@@ -7,8 +7,9 @@ import org.apache.ibatis.session.SqlSessionFactory;
 
 import java.util.List;
 
+
 /**
- *
+ * 与数据库（XML配置文件）交互层
  * @author DUSTY
  */
 public class UsersDAO {
@@ -16,6 +17,10 @@ public class UsersDAO {
     private List<Users> list;
     private Users user;
 
+    /**
+     * 避免被下面任意一个方法给close掉
+     * @return
+     */
     private SqlSession getSession() {
         sqlSession = SqlSessionFactoryUtils.getSqlSessionFactory().openSession();
         return sqlSession;
@@ -42,7 +47,6 @@ public class UsersDAO {
      */
     public Users findById(Integer id) {
         try {
-            //这里的id因为是存在于动态sql，所以不能直接传入而是要封装进users对象再从中获取出来的
             user = getSession().selectOne("findUsers", new Users(id));
         } catch (Exception e) {
             e.printStackTrace();
@@ -61,7 +65,9 @@ public class UsersDAO {
 
             // 返回值：是insert执行过程中影响的行数
             getSession().insert("addUser", user);
+
             sqlSession.commit();
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -77,9 +83,12 @@ public class UsersDAO {
      */
     public Users updateUsers(Users user) {
         try {
+
             // 返回值：是insert执行过程中影响的行数
             getSession().update("updateUser", user);
+
             sqlSession.commit();
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

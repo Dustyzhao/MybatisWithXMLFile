@@ -10,11 +10,12 @@ namespace属性是用来配置命名空间，主要进行session级别的缓存�
 <mapper namespace="com.damu.entity.Users">
 
     <!--<select id="findUsers" resultType="com.damu.entity.Users">-->
-    <!--resultMap的值指定了对应的自定义的resultMap-->
+    <!--resultMap的值指定了对应的自定义的resultMap
+        这里的#{id}是从传入的user对象封装的数据中获取的，不是我们直接输入的id值。
+        所以我们在Users实体类中添加带id参数的构造方法，当然就必须还要有空参构造方法。-->
     <select id="findUsers" resultMap="forUsers">
         select * from users
-        --这里的#{id}是从传入的user对象封装的数据中获取的，不是我们直接输入的id值。
-        --所以我们在Users实体类中添加带id参数的构造方法，当然就必须还要有空参构造方法。
+
         <if test="id != null">
             where id = #{id}
         </if>
@@ -31,27 +32,25 @@ namespace属性是用来配置命名空间，主要进行session级别的缓存�
         <!--proprety指的是实体类中的字段，ofType来制定collection存放的数据类型，select用来调用相关sql语句-->
         <collection property="addresses" column="id" ofType="com.damu.entity.Address" select="getAddress"></collection>
     </resultMap>
-
     <!--查询统一用户所有的地址列表-->
     <select id="getAddress" resultType="com.damu.entity.Address">
         select * from address where userid = #{id}
     </select>
 
-
     <!--sql片段-->
     <sql id="user_fields">
         username, userpass, nickname, age, gender, email, phone, createTime, updateTime, lastLogin, userstatus, remark
     </sql>
-
     <!--后两者配置指定自动生成的主键就会赋值到id字段中-->
     <insert id="addUser" useGeneratedKeys="true" keyProperty="id">
         insert into users( <include refid="user_fields"></include>)
         values(#{name},#{userpass}, #{nickname}, #{age}, #{gender}, #{email}, #{phone}, #{createTime}, #{updateTime}, #{lastLogin}, #{userStatus}, #{remark})
     </insert>
 
+    <!--mybatis官方文档内容：set、if标签在进行update操作时避免影响到其他无关的内容-->
     <update id="updateUser">
         update users
-        --mybatis官方文档内容：set、if标签在进行update操作时避免影响到其他无关的内容
+
         <set>
             <if test="name != null">username = #{name},</if>
             <if test="userpass != null">userpass = #{userpass},</if>

@@ -4,18 +4,18 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by mouwe on 2017/5/17.
+ * mybatis执行流程：
  * resource:mybatis-config.xml
  * InputStream
  * SqlSessionFactory
  * SqlSession
  * 执行我们的配置好的SQL语句
+ * @author DUSTY
  */
 public class Users {
 
     private Integer id;                 // 用户编号
     // private String username;            // 登录账号
-    //以username来演示属性与数据表字段不一致的情况，
     private String name;                // 登录账号
     private String userpass;            // 登录密码
     private String nickname;            // 用户昵称
